@@ -4,23 +4,25 @@ services:
     image: 'gitlab/gitlab-ce:latest'
     restart: unless-stopped
     container_name: gitlab
-    hostname: 'git.yourdomain.com'
+    hostname: 'gitlab.example.com'
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'https://git.yourdomain.com'
+        external_url 'https://gitlab.example.com'
         # Add any other gitlab.rb configuration here, each on its own line
+        # letsencrypt['enable'] = false # Disable Let's Encrypt if Nginx Proxy Manager is handling SSL
     ports:
-#      - '80:80'
-#      - '443:443'
-      - '22:22'
+      - '8081:80'    # Use 8081 for HTTP access to GitLab, if needed externally
+      - '8443:443'   # Use 8443 for HTTPS access, if needed externally
+      - '2222:22'    # Use 2222 for SSH access to repositories
     volumes:
       - './config:/etc/gitlab'
       - './logs:/var/log/gitlab'
       - './data:/var/opt/gitlab'
     shm_size: '256m'
     networks:
-      - nginx-proxy-manager
+      - nginx-proxy-manager_default
 
 networks:
-  nginx-proxy-manager:
+  nginx-proxy-manager_default:
     external: true
+
